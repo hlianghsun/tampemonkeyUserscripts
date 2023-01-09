@@ -1,6 +1,8 @@
 // ==UserScript==
 // @name         TPI ERP WorkAdd plugin
 // @namespace    https://raw.githubusercontent.com/hlianghsun/tampemonkeyUserscripts/main/TPIWorkAdd_Plugin.js
+// @icon         https://www.elite-erp.com.tw/erp/favicon.ico
+// @description  TPI ERP WorkAdd plugin
 // @version      0.2.1
 // @author       Lucian Huang
 // @match        *://www.elite-erp.com.tw/erp/workHour/work/*
