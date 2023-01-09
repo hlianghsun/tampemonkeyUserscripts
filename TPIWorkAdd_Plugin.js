@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         TPI ERP WorkAdd plugin
-// @namespace    https://github.com/hlianghsun/theaterMode_tampemonkey
+// @namespace    https://raw.githubusercontent.com/hlianghsun/tampemonkeyUserscripts/main/TPIWorkAdd_Plugin.js
 // @version      0.2.1
 // @author       Lucian Huang
 // @match        *://www.elite-erp.com.tw/erp/workHour/work/*
