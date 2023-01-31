@@ -3,7 +3,7 @@
 // @namespace    https://raw.githubusercontent.com/hlianghsun/tampemonkeyUserscripts/main/TPIWorkAdd_Plugin.js
 // @icon         https://www.elite-erp.com.tw/erp/favicon.ico
 // @description  TPI ERP WorkAdd plugin
-// @version      0.2.1
+// @version      0.2.2
 // @author       Lucian Huang
 // @match        *://www.elite-erp.com.tw/erp/workHour/work/*
 // @require      https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js
@@ -15,7 +15,7 @@
 
     const targets = [
         {id: "detailForms0.refPjCustCode", value: "CONNING & COMPANY"},
-        {id: "detailForms0.refPjCode", value: "(主)Taipei Development Centre"},
+        {id: "detailForms0.refPjCode", value: "(主)Taipei Development Centre-2023"},
         {id: "detailForms0.refTaskId", value: "程式開發"},
         {id: "detailForms0.workhours", value: "8"}
     ]
