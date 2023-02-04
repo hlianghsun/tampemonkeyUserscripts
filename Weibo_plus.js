@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Weibo+
 // @namespace    https://github.com/hlianghsun/tampemonkeyUserscripts/raw/main/Weibo_plus.js
-// @version      0.5.3
+// @version      0.5.4
 // @description  Weibo plus
 // @author       Lucian Huang
 // @match        *://weibo.com/*
@@ -284,17 +284,33 @@
         }
         let titleDiv = $('div[class^="Detail_tith3_"]');
         let user = $('div.woo-box-flex').filter((i,elem) => elem.className.indexOf('User_h3_') >= 0).text().trim();
-        console.log($('div.woo-box-flex').filter((i,elem) => elem.className.indexOf('User_h3_') >= 0));
+        // console.log($('div.woo-box-flex').filter((i,elem) => elem.className.indexOf('User_h3_') >= 0));
         if(!titleDiv.text() || !user) {
-            setTimeout(() => init_tvShow(count++), 500);
+            setTimeout(() => init_tvShow(count++), 1000);
             return;
         }
-        const updateTitle = `${covretChineseNumeric(titleDiv.text())} [${user}]`;
+        const updateTitle = `${covretChineseNumeric(titleDiv.text())} [${user}]`.trim().replace(/\s{2,}/, ' ');
         $('head title').text(updateTitle);
-        $('video').attr('volumn', '0.05');
-        ($('video')[0])?.pause();
 
-        titleDiv.css('color','blue');
+        const setVideoStop = (testleft = 10) => {
+            console.log(`setVideoStop left = ${testleft}`)
+            if(!testleft) {
+                alert('cant stop video!');
+            }
+            if($('video').attr('volumn') == '0.05') {
+                return;
+            }
+
+            $('video').attr('volumn', '0.05').each((i,elem) => elem.pause());
+            setTimeout(() => setVideoStop(--testleft), 2500);
+        };
+        setVideoStop();
+
+        const dl_path = `G:\\[Drama][Thailand]\\${updateTitle}.mp4`;
+        GM_setClipboard(dl_path, 'text');
+        titleDiv.css('color','blue').click(() => {
+            GM_setClipboard(dl_path, 'text');
+        });
     }
 
     init();
