@@ -1,10 +1,9 @@
 // ==UserScript==
 // @name         Weibo+
-// @namespace    https://github.com/hlianghsun/theaterMode_tampemonkey
-// @version      0.5.2
+// @namespace    https://github.com/hlianghsun/tampemonkeyUserscripts/raw/main/Weibo_plus.js
+// @version      0.5.3
 // @description  Weibo plus
 // @author       Lucian Huang
-// @supportURL   https://github.com/hlianghsun/theaterMode_tampemonkey
 // @match        *://weibo.com/*
 // @match        *://www.weibo.com/*
 // @icon         https://weibo.com/favicon.ico
