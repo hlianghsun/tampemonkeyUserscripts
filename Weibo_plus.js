@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Weibo+
 // @namespace    https://github.com/hlianghsun/tampemonkeyUserscripts/raw/main/Weibo_plus.js
-// @version      0.5.4
+// @version      0.5.5
 // @description  Weibo plus
 // @author       Lucian Huang
 // @match        *://weibo.com/*
@@ -130,11 +130,18 @@
     function initStyle() {
         let $style = $(`<style />`)
             .attr({ rel: "stylesheet", type: 'text/css'})
-            .text(`.woo-modal-wrap {opacity: 0 !important; } .woo-modal-wrap .woo-modal-main {display: none !important; } `)
+            .text(`
+               html {overflow-y: auto !important; margin-right: unset !important;}
+               .woo-modal-wrap {height: 57px;}
+               .woo-modal-wrap .woo-modal-mask {background-color: rgba(255,255,255,0) !important; border: 5px solid yellow; height: 57px;}
+               .woo-modal-wrap .woo-modal-main {display: none !important; }
+            `)
             .appendTo(document.head);
     }
 
     function initCtrlBox(msg, color = 'red') {
+        initStyle();
+
         let $style = $(`<style />`)
             .attr({ rel: "stylesheet", type: 'text/css', id: classn })
             .text(`
