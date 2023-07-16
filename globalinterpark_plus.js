@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         globalinterpark plus
-// @namespace    https://github.com/hlianghsun/tampemonkeyMods/edit/main/JCB_starbucks
+// @namespace    https://raw.githubusercontent.com/hlianghsun/tampemonkeyUserscripts/main/globalinterpark_plus.js
 // @version      0.1
 // @description  lets get globalinterpark booking quickly!
 // @author       Lucian Huang
