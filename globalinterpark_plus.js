@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         globalinterpark plus
 // @namespace    https://raw.githubusercontent.com/hlianghsun/tampemonkeyUserscripts/main/globalinterpark_plus.js
-// @version      0.2
+// @version      0.3
 // @description  lets get globalinterpark booking quickly!
 // @author       Lucian Huang
 // @match        https://ticket.globalinterpark.com/*
@@ -32,9 +32,10 @@
             expired: ["2027","11"]
         },
         autoFindSeatsDelay: 1, //自動換下一區座位表延遲秒數，若<0則不會啟動自動掃區。建議不要設０，系統好像會擋
+        autoFindSeatsStart: true,
         autoNextPage: {        //自動跳轉下一步
             BookDatetime: true,
-            BookSeat: true,
+            BookSeat: false,
             BookPrice: true,
             BookDelivery: true,
             BookPayment: true,
@@ -49,7 +50,6 @@
     const getParams = () => {
         const str = location.search ? location.search.substr(1): "";
         const params = Object.fromEntries(new URLSearchParams(str));
-        console.log(params);
         return params;
     }
 
@@ -166,8 +166,8 @@
         }
     }
 
-    console.log(location.pathname);
-    console.log(getParams());
+    // console.log(location.pathname);
+    // console.log(getParams());
 
     if (isPath('/Global/Play/Book/BookMain.asp')) {
         insertMessageBox();
@@ -203,11 +203,35 @@
             return;
         }
         await waiting(() => window.BlockBuffer.index > 0)
-        const maxSeats = Math.min(settings.numOfTickets, window.TicketCnt_Max);
+        await new Promise(r=>{setTimeout(() => r(), 1000)});
         const blocks = window.BlockBuffer.Data.slice(0, window.BlockBuffer.index);
-        blocks.sort((a, b) => a.SeatBlock - b.SeatBlock);
-        blocks.sort((a, b) => a.SeatGrade - b.SeatGrade);
-        blocks.sort((a, b) => Math.min(b.RemainCnt,maxSeats) - Math.min(a.RemainCnt,maxSeats));
+        let blockCnt = {};
+        for(let i = 0; i < blocks.length; i++) {
+            const floor = blocks[i].SeatBlock.substr(0,1);
+            const seq = blocks[i].SeatBlock.substr(1);
+            const grade = blocks[i].SeatGrade;
+            const key = `${grade}${floor}`;
+            blockCnt[key] ? blockCnt[key].push(seq) : (blockCnt[key] = [seq]);
+        }
+        // console.log(blockCnt);
+        const maxSeats = Math.min(settings.numOfTickets, window.TicketCnt_Max);
+        const getBlockCode = (b) => {
+            const floor = b.SeatBlock.substr(0,1);
+            const seq = b.SeatBlock.substr(1);
+            const grade = b.SeatGrade;
+            const key = `${grade}${floor}`;
+            const countOfZone = blockCnt[key].length;
+            let new_seq = Math.floor(Math.abs(blockCnt[key].indexOf(seq) - ((countOfZone-1)/2)));
+            let zone;
+            if (floor == '0') {
+                zone = 0;
+            } else {
+                zone = new_seq <= (Math.floor(countOfZone/4)) ? 0 : 1;
+                zone = zone + Math.ceil(floor/2);
+            }
+            return `${Math.min(b.RemainCnt,maxSeats)}${grade}${zone}${floor}${new_seq < 10 ? "0" : ""}${new_seq}`;
+        }
+        blocks.sort((a, b) => getBlockCode(a) - getBlockCode(b));
 
         const div = document.createElement('div');
         div.id = `${id}-blocks`;
@@ -233,7 +257,10 @@
             div.appendChild(a);
         }
         document.body.appendChild(div);
-        trigger(div.children[0], 'click');
+
+        if(settings.autoFindSeatsStart === true){
+            trigger(div.children[0], 'click');
+        }
 
     } else if (isPath('/Global/Play/Book/BookSeatDetail.asp')) {
         if (!document.getElementsByClassName("SeatT").length) {
@@ -248,6 +275,10 @@
                   null;
             if (blockList) {
                 let target = parseInt(blockList.getAttribute('data-target'));
+                if (!parseInt(target)) {
+                    window.parent.fnSeatUpdate();
+                    return;
+                }
                 blockList.children[target].style.color = 'lightgray';
                 target++;
                 if (blockList.children.length <= (target)){
@@ -271,7 +302,7 @@
             trigger(seats[i], 'click');
             await waiting(() => window.parent.document.getElementById('SelectedSeatCount').innerHTML == (i+1), 50);
         }
-        if (settings.autoNextPage.BookSeat) {
+        if (settings.autoNextPage.BookSeat === true) {
             if (window.parent.document.getElementById("rcckYN").value != "Y") {
                 setMessage(`waiting page locker`);
                 await waiting(() => window.parent.document.getElementById("rcckYN").value == "Y");
@@ -326,4 +357,3 @@
         settings.autoNextPage.BookConfirm && window.parent.fnNextStep('P'); // next page;
     }
 })();
-
