@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         globalinterpark plus
 // @namespace    https://raw.githubusercontent.com/hlianghsun/tampemonkeyUserscripts/main/globalinterpark_plus.js
-// @version      0.1
+// @version      0.2
 // @description  lets get globalinterpark booking quickly!
 // @author       Lucian Huang
 // @match        https://ticket.globalinterpark.com/*
@@ -14,24 +14,25 @@
 (async function() {
     'use strict';
     const settings = {
-        prdNo:23008985,
-        date: 20230813,
-        seats: 4,
-        bookingInfo: {
+        date: "20230729", //表演日期
+        time: "6:00 PM",  //表演場次時間
+        numOfTickets: 4,  //訂購票數, 若超出場次購票上限，已上限為主
+        bookingInfo: {    //訂購人資訊
             name: "LUCIAN HUANG",
-            b_year: 1985,
-            b_month: 12,
-            b_date: 13,
+            b_year: "1985",
+            b_month: "01",
+            b_date: "02",
             // email: "slhs00837@gmail.com",
             phone: "0911123123",
             cellPhone: "0911123123"
         },
-        payment: {
+        payment: {        //付款資訊
             type: "Visa", //Visa, Master, JCB, Other (credit cards)
             card: ["7573","7573","7573","7573"],
             expired: ["2027","11"]
         },
-        autoNextPage: {
+        autoFindSeatsDelay: 1, //自動換下一區座位表延遲秒數，若<0則不會啟動自動掃區。建議不要設０，系統好像會擋
+        autoNextPage: {        //自動跳轉下一步
             BookDatetime: true,
             BookSeat: true,
             BookPrice: true,
@@ -41,7 +42,7 @@
         }
     }
 
-    const id = `globalinterpark-${settings.prdNo}-${settings.date}`;
+    const id = `globalinterpark-plus-${settings.date}`;
 
     const isPath = (pathName) => (location.pathname.indexOf(pathName) == 0);
 
@@ -165,24 +166,30 @@
         }
     }
 
-    if (isPath('/Global/Play/CBT/GoodsInfo_CBT.asp')) {
-        const msgBox = insertMessageBox();
-        msgBox.style.bottom = "unset";
-        msgBox.style.top = 0;
-        setMessage(`prdNo = ${getParams()?.GoodsCode}`);
+    console.log(location.pathname);
+    console.log(getParams());
 
-        await selectOption(document.getElementById('play_date'), (settings.prdNo == getParams()?.GoodsCode) ? settings.date : null);
-        await selectOption(document.getElementById('play_time'));
-
-        setMessage(`Ready for next!!!!`, 'yellow').style.fontSize = '30px';
-
-        return;
-
-    } else if (isPath('/Global/Play/Book/BookMain.asp')) {
+    if (isPath('/Global/Play/Book/BookMain.asp')) {
         insertMessageBox();
 
     } else if (isPath('/Global/Play/Book/BookDatetime.asp')) {
         setMessage(`BookDatetime`);
+        if (!window.$F("PlayDate")) {
+            window.fnSelectPlayDate(0, settings.date);
+            setMessage(`set date = ${settings.date}`);
+            let cellPlaySeq;
+            await waiting(() => {
+                cellPlaySeq = document.getElementsByName('CellPlaySeq');
+                return cellPlaySeq.length > 0;
+            })
+            for (let i = 0; i<cellPlaySeq.length; i++ ){
+                if (cellPlaySeq[i].innerText == settings.time) {
+                    setMessage(`set date = ${settings.date} / time = ${settings.time}`);
+                    trigger(cellPlaySeq[i], 'click');
+                    break;
+                }
+            }
+        }
         settings.autoNextPage.BookDatetime && window.top.fnNextStep('P');
     } else if (isPath('/Global/Play/Book/BookSeat.asp')) {
         setMessage(`BookSeat`);
@@ -191,6 +198,42 @@
         if (input.length) {
             trigger(input[0], 'click');
         }
+
+        if (settings.autoFindSeatsDelay < 0) {
+            return;
+        }
+        await waiting(() => window.BlockBuffer.index > 0)
+        const blocks = window.BlockBuffer.Data.slice(0, window.BlockBuffer.index);
+        blocks.sort((a, b) => a.SeatBlock - b.SeatBlock);
+        blocks.sort((a, b) => a.SeatGrade - b.SeatGrade);
+        blocks.sort((a, b) => a.RemainCnt - b.RemainCnt);
+
+        const div = document.createElement('div');
+        div.id = `${id}-blocks`;
+        div.style.position = 'fixed';
+        div.style.top = '46px';
+        div.style.right = '230px';
+        div.style.maxWidth = '100%';
+        div.style.padding = '10px 5px';
+        div.style.zIndex = 999;
+        for(let i = 0; i < blocks.length; i++) {
+            const a = document.createElement('div');
+            a.id = `block-${blocks[i].SeatBlock}`;
+            a.style.fontSize = '10px';
+            a.style.display = 'block';
+            a.style.color = 'black';
+            a.style.cursor = 'pointer';
+            a.onclick = () => {
+                div.setAttribute('data-target', i);
+                a.style.color = 'red';
+                window.fnBlockSeatUpdate('', '', blocks[i].SeatBlock)
+            };
+            a.innerHTML = `${blocks[i].SeatBlock} ${blocks[i].SeatGradeName}(${blocks[i].RemainCnt})`;
+            div.appendChild(a);
+        }
+        document.body.appendChild(div);
+        trigger(div.children[0], 'click');
+
     } else if (isPath('/Global/Play/Book/BookSeatDetail.asp')) {
         if (!document.getElementsByClassName("SeatT").length) {
             // setMessage(`can not select seat(s) in this page.`);
@@ -199,12 +242,26 @@
         const seats = document.getElementsByName('Seats');
         if (seats.length == 0) {
             setMessage(`Block: ${document.getElementsByTagName('font')[0].innerText} find 0 seat(s), back to map`, 'red');
-            window.parent.fnSeatUpdate();
+            const blockList = settings.autoFindSeatsDelay > 0 ?
+                  window.parent.document.getElementById(`${id}-blocks`) :
+                  null;
+            if (blockList) {
+                let target = parseInt(blockList.getAttribute('data-target'));
+                blockList.children[target].style.color = 'lightgray';
+                target++;
+                if (blockList.children.length <= (target)){
+                    target = 0;
+                }
+                await new Promise(r=>{setTimeout(() => r(), settings.autoFindSeatsDelay * 1000)})
+                trigger(blockList.children[target], 'click');
+            } else {
+                window.parent.fnSeatUpdate();
+            }
             return;
         }
         setMessage(`find ${seats.length} seat(s)`);
 
-        const maxSeats = Math.min(seats.length, settings.seats, window.parent.TicketCnt_Max);
+        const maxSeats = Math.min(seats.length, settings.numOfTickets, window.parent.TicketCnt_Max);
         if (!maxSeats) {
             return;
         }
@@ -213,13 +270,18 @@
             trigger(seats[i], 'click');
             await waiting(() => window.parent.document.getElementById('SelectedSeatCount').innerHTML == (i+1), 50);
         }
-        settings.autoNextPage.BookSeat && window.parent.fnSelect(); // next page;
-
+        if (settings.autoNextPage.BookSeat) {
+            if (window.parent.document.getElementById("rcckYN").value != "Y") {
+                setMessage(`waiting page locker`);
+                await waiting(() => window.parent.document.getElementById("rcckYN").value == "Y");
+            }
+            window.parent.fnSelect(); // next page;
+        }
     } else if (isPath('/Global/Play/Book/BookPrice.asp')) {
         setMessage(`BookPrice`);
         const elem = document.getElementsByName("SeatCount")[0];
         const totalTix = window.parent.document.getElementById('MySelectedSeatCnt').innerText;
-        await selectOption(elem, ((totalTix > 0) ? totalTix : settings.seats));
+        await selectOption(elem, ((totalTix > 0) ? totalTix : settings.numOfTickets));
 
         setMessage(`set ${elem.value} seat(s)`);
         await waiting(() => window.parent.document.getElementById('MyTotalAmt').innerText != '0', 50);
