@@ -203,10 +203,11 @@
             return;
         }
         await waiting(() => window.BlockBuffer.index > 0)
+        const maxSeats = Math.min(settings.numOfTickets, window.TicketCnt_Max);
         const blocks = window.BlockBuffer.Data.slice(0, window.BlockBuffer.index);
         blocks.sort((a, b) => a.SeatBlock - b.SeatBlock);
         blocks.sort((a, b) => a.SeatGrade - b.SeatGrade);
-        blocks.sort((a, b) => a.RemainCnt - b.RemainCnt);
+        blocks.sort((a, b) => Math.min(b.RemainCnt,maxSeats) - Math.min(a.RemainCnt,maxSeats));
 
         const div = document.createElement('div');
         div.id = `${id}-blocks`;
