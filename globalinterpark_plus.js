@@ -203,7 +203,6 @@
             return;
         }
         await waiting(() => window.BlockBuffer.index > 0)
-        await new Promise(r=>{setTimeout(() => r(), 1000)});
         const blocks = window.BlockBuffer.Data.slice(0, window.BlockBuffer.index);
         let blockCnt = {};
         for(let i = 0; i < blocks.length; i++) {
@@ -275,7 +274,7 @@
                   null;
             if (blockList) {
                 let target = parseInt(blockList.getAttribute('data-target'));
-                if (!parseInt(target)) {
+                if (parseInt(target) === Number.NaN) {
                     window.parent.fnSeatUpdate();
                     return;
                 }
@@ -357,3 +356,4 @@
         settings.autoNextPage.BookConfirm && window.parent.fnNextStep('P'); // next page;
     }
 })();
+
