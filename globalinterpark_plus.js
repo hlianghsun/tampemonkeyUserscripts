@@ -226,7 +226,7 @@
                 zone = 0;
             } else {
                 zone = new_seq <= (Math.floor(countOfZone/4)) ? 0 : 1;
-                zone = zone + Math.ceil(floor/2);
+                zone = zone + Math.ceil((floor-1)/3);
             }
             return `${Math.min(b.RemainCnt,maxSeats)}${grade}${zone}${floor}${new_seq < 10 ? "0" : ""}${new_seq}`;
         }
