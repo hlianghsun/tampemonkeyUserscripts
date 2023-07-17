@@ -1,0 +1,81 @@
+// ==UserScript==
+// @name         JCB starbucks
+// @namespace    https://github.com/hlianghsun/tampemonkeyMods/edit/main/JCB_starbucks
+// @version      0.2.2
+// @description  lets get JSB starbucks discounts quickly!
+// @author       Lucian Huang
+// @match        https://www.taodining.com.tw/star23/ord_accept
+// @match        https://www.taodining.com.tw/star23/ord_record/*
+// @match        https://www.taodining.com.tw/star23/search
+// @icon         https://www.tw.jcb/zh-tw/common/images/favicon.ico
+// @grant        none
+// ==/UserScript==
+
+(function() {
+    'use strict';
+
+    const infos = [
+        {name: "LUCIAN HUANG", phone: "0911000000", mail: "zzz@aa.com", card: ["356799","9999"]},
+    ]
+
+    if (location.href.indexOf("ord_accept") >= 0) {
+        document.getElementsByClassName('scroll')[0].style.height = '100px';
+        document.getElementById('CheckboxGroup1_0').setAttribute('checked', true);
+        // setTimeout(() => document.forms[0].submit() , 5000);
+
+    } else if (location.href.indexOf("ord_record") >= 0) {
+        document.getElementById('CheckboxGroup1_0').setAttribute('checked', true);
+        document.getElementById('how2know1').setAttribute('checked', true);
+
+        const vCode = document.getElementById('checkCode').innerHTML;
+        document.getElementById('captcha_form').setAttribute('value', vCode);
+
+        const insertAfterNode = document.getElementById('btn_clearcardno').parentNode;
+        insertAfterNode.style.display = 'none';
+
+        infos.forEach((info, i) => {
+            const btn = document.createElement('button');
+            btn.className = "btn btn-default";
+            btn.style.color = "white";
+            btn.style.padding = "5px 10px";
+            btn.setAttribute('type', 'button');
+            btn.innerHTML = info.card[1];
+            btn.onclick = () => {
+                document.getElementById('user_name').setAttribute('value', info.name);
+                document.getElementById('user_phone').setAttribute('value', info.phone);
+                document.getElementById('user_email').setAttribute('value', info.mail);
+                document.getElementById('card1').setAttribute('value', info.card[0]);
+                document.getElementById('card4').setAttribute('value', info.card[1]);
+                chk_cardinfo();
+                setTimeout(() => {
+                    shouldConfirm =false;
+                    chk_value();
+                }, 500);
+            };
+            insertAfterNode.parentNode.insertBefore(btn, insertAfterNode);
+        });
+    } else if (location.href.indexOf("search") >= 0) {
+        const insertAfterNode = document.getElementById('btn_clearcardno').parentNode;
+        insertAfterNode.style.display = 'none';
+
+        infos.forEach((info, i) => {
+            const btn = document.createElement('button');
+            btn.className = "btn btn-default";
+            btn.style.padding = "3px 10px";
+            btn.style.marginTop = "-5px";
+            btn.style.marginRight = "5px";
+            btn.setAttribute('type', 'button');
+            btn.innerHTML = info.card[1];
+            btn.onclick = () => {
+                document.getElementById('user_name').setAttribute('value', info.name.length > 14 ? info.name.substr(0, 14) : info.name);
+                document.getElementById('user_phone').setAttribute('value', info.phone);
+                document.getElementById('card1').setAttribute('value', info.card[0]);
+                document.getElementById('card4').setAttribute('value', info.card[1]);
+                chk_cardinfo();
+            };
+            insertAfterNode.parentNode.insertBefore(btn, insertAfterNode);
+        });
+
+        document.getElementsByTagName('table')[0].style.borderSpacing = '0px 2px';
+    }
+})();
