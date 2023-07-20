@@ -4,6 +4,7 @@
 // @version      0.3
 // @description  lets get globalinterpark booking quickly!
 // @author       Lucian Huang
+// @match        https://www.globalinterpark.com/detail/*
 // @match        https://ticket.globalinterpark.com/*
 // @match        https://gpoticket.globalinterpark.com/Global/Play/Book/*
 // @icon         https://openimage.interpark.com/UI/favicon/ticket_favicon.ico
@@ -168,8 +169,49 @@
 
     // console.log(location.pathname);
     // console.log(getParams());
+    insertMessageBox(location.pathname);
 
-    if (isPath('/Global/Play/Book/BookMain.asp')) {
+    if(isPath('/detail/edetail')){
+        const div = document.createElement('div');
+        div.id = `${id}-config`;
+        div.className = `globalinterpark-plus-config`;
+        div.style.position = 'fixed';
+        div.style.top = '130px';
+        div.style.right = '10px';
+        div.style.maxWidth = '100%'
+        div.style.fontSize = '16px';
+        div.style.padding = '10px 5px';
+        div.style.zIndex = 999;
+        div.style.border = '1px';
+        div.style.background = 'rgba(255,255,255,0.5)';
+
+        const input = document.createElement('input');
+        input.type = 'number';
+        input.value = 0.3;
+        input.step = 0.1;
+        input.min = 0;
+        input.style.width = '50px';
+        div.appendChild(input);
+        div.appendChild(document.createTextNode('(sec)...'));
+
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.innerHTML = 'Start';
+        button.onclick = (e) => {
+            if (e.target.innerText == 'Start') {
+                e.target.innerHTML = 'Stop';
+                let src = document.getElementById('product_detail_area').src;
+                document.getElementById('product_detail_area').src = src;
+            } else {
+                e.target.innerText = 'Start';
+            }
+        }
+        div.appendChild(button);
+
+        document.body.appendChild(div);
+        return div;
+
+    } else if (isPath('/Global/Play/Book/BookMain.asp')) {
         insertMessageBox();
 
     } else if (isPath('/Global/Play/Book/BookDatetime.asp')) {
