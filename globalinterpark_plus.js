@@ -15,7 +15,7 @@
 (async function() {
     'use strict';
     const settings = {
-        date: "20230729", //表演日期
+        date: "20230811", //表演日期
         time: "6:00 PM",  //表演場次時間
         numOfTickets: 4,  //訂購票數, 若超出場次購票上限，已上限為主
         bookingInfo: {    //訂購人資訊
@@ -35,7 +35,7 @@
         autoFindSeatsDelay: 1, //自動換下一區座位表延遲秒數，若<0則不會啟動自動掃區。建議不要設０，系統好像會擋
         autoFindSeatsStart: true,
         autoNextPage: {        //自動跳轉下一步
-            BookDatetime: true,
+            BookDatetime: false,
             BookSeat: false,
             BookPrice: true,
             BookDelivery: true,
@@ -83,6 +83,8 @@
         div.style.background = 'black';
         div.style.padding = '10px 5px';
         div.style.zIndex = 999;
+        div.style.borderRadius = "3px";
+        div.style.boxShadow = '0 0 5px 5px rgba(0,0,0,0.3);';
         div.innerHTML = defaultMessage;
         document.body.appendChild(div);
         return div;
@@ -169,47 +171,79 @@
 
     // console.log(location.pathname);
     // console.log(getParams());
-    insertMessageBox(location.pathname);
 
     if(isPath('/detail/edetail')){
+        const currentURL = location.href;
+
         const div = document.createElement('div');
         div.id = `${id}-config`;
         div.className = `globalinterpark-plus-config`;
         div.style.position = 'fixed';
         div.style.top = '130px';
-        div.style.right = '10px';
+        div.style.left = '10px';
         div.style.maxWidth = '100%'
         div.style.fontSize = '16px';
         div.style.padding = '10px 5px';
         div.style.zIndex = 999;
-        div.style.border = '1px';
-        div.style.background = 'rgba(255,255,255,0.5)';
+        div.style.border = '2px solid yellow';
+        div.style.borderRadius = "3px";
+        div.style.boxShadow = '0 0 5px 5px rgba(255,255,0,0.3);';
+        div.style.background = 'rgba(255,255,255,0.7)';
 
+        div.appendChild(document.createTextNode('Reload Page every  '));
         const input = document.createElement('input');
         input.type = 'number';
         input.value = 0.3;
         input.step = 0.1;
         input.min = 0;
         input.style.width = '50px';
+        input.onchange = (e) => {
+            const match = document.getElementById('product_detail_area').src.match(/^(.*)#([\d.]+)$/);
+            if (match) {
+                document.getElementById('product_detail_area').src = `${match[1]}#${e.target.value}`;
+            }
+        }
         div.appendChild(input);
-        div.appendChild(document.createTextNode('(sec)...'));
+        div.appendChild(document.createTextNode('  second(s).  '));
 
         const button = document.createElement('button');
         button.type = 'button';
-        button.innerHTML = 'Start';
+        button.innerHTML = 'Start/Stop';
         button.onclick = (e) => {
-            if (e.target.innerText == 'Start') {
-                e.target.innerHTML = 'Stop';
-                let src = document.getElementById('product_detail_area').src;
-                document.getElementById('product_detail_area').src = src;
+            const src = document.getElementById('product_detail_area').src;
+            const match = src.match(/^(.*)#([\d.]+)$/);
+            if (!match) {
+                document.getElementById('product_detail_area').src = `${src}#${e.target.parentNode.children[0].value}`;
             } else {
-                e.target.innerText = 'Start';
+                document.getElementById('product_detail_area').src = match[1];
             }
         }
         div.appendChild(button);
 
         document.body.appendChild(div);
         return div;
+    } else if (isPath('/Global/Play/CBT/GoodsInfo_CBT.asp')) {
+        const match = location.href.match(/^(.*)#([\d.]+)$/);
+        const now = new Date();
+        const msgBox = insertMessageBox(`Auto-Reload: ${match ? ` ${match[2]}sec.`: 'OFF'}<br/><br/>Play Date: ${settings.date}<br/><br/>Update Time: ${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}.${now.getMilliseconds()}`);
+        msgBox.style.bottom = 'unset';
+        msgBox.style.top = '0';
+
+        if(!document.getElementsByClassName('btn_Booking').length) {
+            if (match) {
+                setTimeout(() => location.reload(), 1000 * match[2]);
+            }
+        } else {
+            selectOption(document.getElementById('play_date'), settings.date);
+            await waiting(() => document.getElementById('play_time').value );
+            if (match) {
+                window.fnNormalBooking();
+                setMessage('<b>Window open</b><br/>Reload stopped.', 'yellow');
+                location.replcae(match[1]);
+            } else {
+                setMessage('<b>Ready</b>', 'yellow');
+            }
+        }
 
     } else if (isPath('/Global/Play/Book/BookMain.asp')) {
         insertMessageBox();
@@ -285,7 +319,7 @@
         for(let i = 0; i < blocks.length; i++) {
             const a = document.createElement('div');
             a.id = `block-${blocks[i].SeatBlock}`;
-            a.style.fontSize = '10px';
+            a.style.fontSize = '9px';
             a.style.display = 'block';
             a.style.color = 'black';
             a.style.cursor = 'pointer';
@@ -398,4 +432,3 @@
         settings.autoNextPage.BookConfirm && window.parent.fnNextStep('P'); // next page;
     }
 })();
-
