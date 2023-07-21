@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         globalinterpark plus
 // @namespace    https://raw.githubusercontent.com/hlianghsun/tampemonkeyUserscripts/main/globalinterpark_plus.js
-// @version      0.4
+// @version      0.4.1
 // @description  lets get globalinterpark booking quickly!
 // @author       Lucian Huang
 // @match        https://www.globalinterpark.com/detail/*
@@ -15,32 +15,32 @@
 (async function() {
     'use strict';
     const settings = {
-        date: "20230811", //表演日期
+        date: "20230804", //表演日期
         time: "6:00 PM",  //表演場次時間
-        numOfTickets: 4,  //訂購票數, 若超出場次購票上限，已上限為主
+        numOfTickets: 1,  //訂購票數, 若超出場次購票上限，已上限為主
         bookingInfo: {    //訂購人資訊
-            name: "LUCIAN HUANG",
-            b_year: "1985",
-            b_month: "01",
-            b_date: "02",
+            name: "YUYA HUANG",
+            b_year: "1986",
+            b_month: "03",
+            b_date: "11",
             // email: "slhs00837@gmail.com",
-            phone: "0911123123",
-            cellPhone: "0911123123"
+            phone: "0910000000",
+            cellPhone: "0910000000"
         },
         payment: {        //付款資訊
             type: "Visa", //Visa, Master, JCB, Other (credit cards)
-            card: ["7573","7573","7573","7573"],
-            expired: ["2027","11"]
+            card: ["8888","8888","8888","8888"],
+            expired: ["2121","12"],
         },
-        autoFindSeatsDelay: 1, //自動換下一區座位表延遲秒數，若<0則不會啟動自動掃區。建議不要設０，系統好像會擋
+        autoFindSeatsDelay: 0.5, //自動換下一區座位表延遲秒數，若<0則不會啟動自動掃區。建議不要設０，系統好像會擋
         autoFindSeatsStart: true,
         autoNextPage: {        //自動跳轉下一步
-            BookDatetime: false,
+            BookDatetime: true,
             BookSeat: false,
             BookPrice: true,
             BookDelivery: true,
             BookPayment: true,
-            BookConfirm: false,
+            BookConfirm: true,
         }
     }
 
@@ -84,7 +84,7 @@
         div.style.padding = '10px 5px';
         div.style.zIndex = 999;
         div.style.borderRadius = "3px";
-        div.style.boxShadow = '0 0 5px 5px rgba(0,0,0,0.3);';
+        div.style.boxShadow = '0 0 5px 5px rgba(0,0,0,0.3)';
         div.innerHTML = defaultMessage;
         document.body.appendChild(div);
         return div;
@@ -187,7 +187,7 @@
         div.style.zIndex = 999;
         div.style.border = '2px solid yellow';
         div.style.borderRadius = "3px";
-        div.style.boxShadow = '0 0 5px 5px rgba(255,255,0,0.3);';
+        div.style.boxShadow = '0 0 5px 5px rgba(255,255,0,0.3)';
         div.style.background = 'rgba(255,255,255,0.7)';
 
         div.appendChild(document.createTextNode('Reload Page every  '));
@@ -304,18 +304,23 @@
                 zone = new_seq <= (Math.floor(countOfZone/4)) ? 0 : 1;
                 zone = zone + Math.ceil((floor-1)/3);
             }
-            return `${Math.min(b.RemainCnt,maxSeats)}${grade}${zone}${floor}${new_seq < 10 ? "0" : ""}${new_seq}`;
+            return `${9-Math.min(b.RemainCnt,maxSeats,9)}${grade}${zone}${floor}${new_seq < 10 ? "0" : ""}${new_seq}`;
         }
         blocks.sort((a, b) => getBlockCode(a) - getBlockCode(b));
 
         const div = document.createElement('div');
         div.id = `${id}-blocks`;
         div.style.position = 'fixed';
-        div.style.top = '46px';
-        div.style.right = '230px';
+        div.style.top = '60px';
+        div.style.right = '240px';
         div.style.maxWidth = '100%';
+        div.style.maxHeight = 'calc(100vh - 100px)';
+        div.style.overflowY = 'auto';
         div.style.padding = '10px 5px';
         div.style.zIndex = 999;
+        div.style.boxShadow = '0px 0px 5px 5px rgba(0,0,0,0.3)';
+        div.style.background = 'rgba(255,255,255,0.7)';
+
         for(let i = 0; i < blocks.length; i++) {
             const a = document.createElement('div');
             a.id = `block-${blocks[i].SeatBlock}`;
@@ -344,7 +349,7 @@
         }
         const seats = document.getElementsByName('Seats');
         if (seats.length == 0) {
-            setMessage(`Block: ${document.getElementsByTagName('font')[0].innerText} find 0 seat(s), back to map`, 'red');
+            setMessage(`Block: ${document.getElementsByTagName('font')[0].innerText} find 0 seat(s)`, 'red');
             const blockList = settings.autoFindSeatsDelay > 0 ?
                   window.parent.document.getElementById(`${id}-blocks`) :
                   null;
@@ -357,10 +362,11 @@
                 blockList.children[target].style.color = 'lightgray';
                 target++;
                 if (blockList.children.length <= (target)){
-                    target = 0;
+                    window.parent.location.reload();
                 }
                 await new Promise(r=>{setTimeout(() => r(), settings.autoFindSeatsDelay * 1000)})
                 trigger(blockList.children[target], 'click');
+                blockList.scrollTop = blockList.children[target].offsetTop;
             } else {
                 window.parent.fnSeatUpdate();
             }
