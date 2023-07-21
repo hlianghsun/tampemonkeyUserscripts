@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         globalinterpark plus
 // @namespace    https://raw.githubusercontent.com/hlianghsun/tampemonkeyUserscripts/main/globalinterpark_plus.js
-// @version      0.3
+// @version      0.4
 // @description  lets get globalinterpark booking quickly!
 // @author       Lucian Huang
 // @match        https://www.globalinterpark.com/detail/*
