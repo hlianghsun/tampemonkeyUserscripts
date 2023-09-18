@@ -1,9 +1,10 @@
 // ==UserScript==
 // @name         JCB starbucks
-// @namespace    https://raw.githubusercontent.com/hlianghsun/tampemonkeyUserscripts/main/starbucks_plus
-// @version      0.2.2
+// @namespace    https://github.com/hlianghsun/tampemonkeyMods/edit/main/JCB_starbucks
+// @version      0.2.4
 // @description  lets get JSB starbucks discounts quickly!
 // @author       Lucian Huang
+// @match        https://www.taodining.com.tw/star23/
 // @match        https://www.taodining.com.tw/star23/ord_accept
 // @match        https://www.taodining.com.tw/star23/ord_record/*
 // @match        https://www.taodining.com.tw/star23/search
@@ -15,7 +16,7 @@
     'use strict';
 
     const infos = [
-        {name: "LUCIAN HUANG", phone: "0911000000", mail: "zzz@aa.com", card: ["356799","9999"]},
+        {name: "HUANG LUCIAN", phone: "0988888888", mail: "itsamail@gmail.com", card: "1234123412341234"}
     ]
 
     if (location.href.indexOf("ord_accept") >= 0) {
@@ -39,13 +40,12 @@
             btn.style.color = "white";
             btn.style.padding = "5px 10px";
             btn.setAttribute('type', 'button');
-            btn.innerHTML = info.card[1];
+            btn.innerHTML = info.card.substr(12);
             btn.onclick = () => {
                 document.getElementById('user_name').setAttribute('value', info.name);
                 document.getElementById('user_phone').setAttribute('value', info.phone);
                 document.getElementById('user_email').setAttribute('value', info.mail);
-                document.getElementById('card1').setAttribute('value', info.card[0]);
-                document.getElementById('card4').setAttribute('value', info.card[1]);
+                document.getElementById('card1').setAttribute('value', info.card);
                 chk_cardinfo();
                 setTimeout(() => {
                     shouldConfirm =false;
@@ -65,17 +65,32 @@
             btn.style.marginTop = "-5px";
             btn.style.marginRight = "5px";
             btn.setAttribute('type', 'button');
-            btn.innerHTML = info.card[1];
+            btn.innerHTML = info.card.substr(12);
             btn.onclick = () => {
                 document.getElementById('user_name').setAttribute('value', info.name.length > 14 ? info.name.substr(0, 14) : info.name);
                 document.getElementById('user_phone').setAttribute('value', info.phone);
-                document.getElementById('card1').setAttribute('value', info.card[0]);
-                document.getElementById('card4').setAttribute('value', info.card[1]);
+                document.getElementById('card1').setAttribute('value', info.card);
                 chk_cardinfo();
             };
             insertAfterNode.parentNode.insertBefore(btn, insertAfterNode);
         });
 
         document.getElementsByTagName('table')[0].style.borderSpacing = '0px 2px';
+    } else {
+        const div = document.createElement('div');
+        div.style.position = "absolute";
+        div.style.top = 0;
+        div.style.left = 0;
+        div.style.width = '100%';
+        div.style.textAlign = 'center';
+        div.style.color = 'yellow';
+        div.style.fontSize = '70px';
+        div.style.zIndex = '999';
+        div.innerHTML = new Date().toLocaleString();
+        document.body.append(div);
+
+        setInterval(() => {
+            div.innerHTML = new Date().toLocaleString();
+        }, 500);
     }
 })();
