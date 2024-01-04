@@ -149,12 +149,12 @@
         });
 
         $('<button type="button" />')
-            .addClass('btn')
+            .addClass('btn btn-warning')
             .css("margin", "2px")
-            .css("padding", "6px")
+            .css("padding", "6px 0px")
             .css("width", "49.05px")
-            .attr('disabled', true)
-            .text("　 ")
+            .click(() => submitWorkHours())
+            .text("Submit")
             .appendTo(container);
     }
 
