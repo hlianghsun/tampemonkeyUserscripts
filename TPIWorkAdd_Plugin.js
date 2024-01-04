@@ -26,22 +26,7 @@
         }
         initDate();
         initTime();
-
-        $('<button type="button" class="btn btn-blue">懶人填寫</button>').insertBefore('#submitBtn').click(async (e) => {
-            const ctrlbtns = $(e.target).parent().children('.btn-blue');
-            ctrlbtns.attr('disabled', true);
-
-            let result = true;
-            for (let i = 0; i< targets.length; i++) {
-                const r = await execTarget(targets[i]);
-                result = result && r;
-            };
-
-            // result && $('#submitBtn').click();
-
-            ctrlbtns.attr('disabled', false);
-
-        }).click();
+        applyTargets();
     }
 
     function fillZero(i) {
@@ -105,7 +90,7 @@
                     () => {
                         if (isMatch) { return; }
                         input.val(fill);
-                        unsafeWindow.requeryPage('ADD');
+                        unsafeWindow.requeryPage('ADD', "false");
                     }
                 );
             });
@@ -171,6 +156,14 @@
             .attr('disabled', true)
             .text("　 ")
             .appendTo(container);
+    }
+
+    async function applyTargets() {
+        let result = true;
+        for (let i = 0; i< targets.length; i++) {
+            const r = await execTarget(targets[i]);
+            result = result && r;
+        };
     }
 
     async function execTarget(target, retries = 0) {
