@@ -4,10 +4,10 @@
 // @version      0.2.4
 // @description  lets get JSB starbucks discounts quickly!
 // @author       Lucian Huang
-// @match        https://www.taodining.com.tw/star23/
-// @match        https://www.taodining.com.tw/star23/ord_accept
-// @match        https://www.taodining.com.tw/star23/ord_record/*
-// @match        https://www.taodining.com.tw/star23/search
+// @match        https://www.taodining.com.tw/star24/
+// @match        https://www.taodining.com.tw/star24/ord_accept
+// @match        https://www.taodining.com.tw/star24/ord_record/*
+// @match        https://www.taodining.com.tw/star24/search
 // @icon         https://www.tw.jcb/zh-tw/common/images/favicon.ico
 // @grant        none
 // ==/UserScript==
