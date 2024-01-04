@@ -3,7 +3,7 @@
 // @namespace    https://raw.githubusercontent.com/hlianghsun/tampemonkeyUserscripts/main/TPIWorkAdd_Plugin.js
 // @icon         https://www.elite-erp.com.tw/erp/favicon.ico
 // @description  TPI ERP WorkAdd plugin
-// @version      0.2.2
+// @version      2024.1
 // @author       Lucian Huang
 // @match        *://www.elite-erp.com.tw/erp/workHour/work/*
 // @require      https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js
