@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         JCB starbucks
 // @namespace    https://github.com/hlianghsun/tampemonkeyMods/edit/main/JCB_starbucks
-// @version      0.2.4
+// @version      2024.1
 // @description  lets get JSB starbucks discounts quickly!
 // @author       Lucian Huang
 // @match        https://www.taodining.com.tw/star24/
