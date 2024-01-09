@@ -15,7 +15,7 @@
 
     const targets = [
         {id: "detailForms0.refPjCustCode", value: "CONNING & COMPANY"},
-        {id: "detailForms0.refPjCode", value: "(主)Taipei Development Centre-2023"},
+        {id: "detailForms0.refPjCode", value: "(主)Taipei Development Centre-2024"},
         {id: "detailForms0.refTaskId", value: "程式開發"},
         {id: "detailForms0.workhours", value: "8"}
     ]
